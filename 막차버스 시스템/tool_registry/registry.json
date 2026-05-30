@@ -1,0 +1,266 @@
+{
+  "_comment": "Planner Agent에 그대로 주입되는 Tool 카탈로그. when_to_use 문장을 잘 다듬어야 Planner가 올바른 Tool을 고른다.",
+  "version": "0.1.0",
+  "tools": [
+    {
+      "name": "live_arrival_tool",
+      "mvp_priority": "P0",
+      "description": "특정 정류장의 특정 버스 노선 실시간 도착 예정 시간/지연 정보를 조회한다.",
+      "when_to_use": "사용자가 특정 버스(예: '143번')나 정류장(예: '강남역')을 언급했을 때, 또는 막차 시간과 실제 도착 시간을 비교해야 할 때. '버스 안 와요' 같은 지연 호소가 있을 때 가장 먼저 고려.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "stop_id": {"type": "string", "description": "정류장 ID (서울 TOPIS 기준 5자리)"},
+          "route_id": {"type": "string", "description": "노선 ID 또는 노선 번호"}
+        },
+        "required": ["stop_id", "route_id"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "stop_name": {"type": "string"},
+          "buses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "route_name": {"type": "string"},
+                "expected_arrival_min": {"type": "number"},
+                "delay_min": {"type": "number"},
+                "is_last_bus": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      },
+      "data_source": {
+        "real": "서울 열린데이터광장 - 버스도착정보 조회 서비스",
+        "mock": "mock_data/live_arrival.json"
+      }
+    },
+    {
+      "name": "last_transport_time_tool",
+      "mvp_priority": "P0",
+      "description": "출발지→목적지의 가능한 대중교통 옵션과 각 노선의 막차 출발 시간, 남은 시간을 반환한다.",
+      "when_to_use": "사용자가 '갈 수 있어?', '막차', '귀가' 등 도착 가능 여부를 물을 때 거의 항상 호출. risk_score_tool의 입력으로도 필요.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "origin": {"type": "string"},
+          "destination": {"type": "string"}
+        },
+        "required": ["origin", "destination"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mode": {"type": "string", "enum": ["bus", "subway", "walk", "taxi"]},
+                "route_name": {"type": "string"},
+                "minutes_until_last": {"type": "number"},
+                "transfer_walk_min": {"type": "number"}
+              }
+            }
+          }
+        }
+      },
+      "data_source": {
+        "real": "서울 TOPIS + 카카오/네이버 길찾기 (조합 필요)",
+        "mock": "mock_data/last_transport.json"
+      }
+    },
+    {
+      "name": "weather_tool",
+      "mvp_priority": "P0",
+      "description": "현재/단기 강수·강설·기온 정보를 반환한다.",
+      "when_to_use": "사용자 발화에 '비/눈/우산/폭우' 등 날씨 키워드가 있거나, Critic이 지연 원인 분석을 요청했을 때.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "location": {"type": "string", "description": "행정구역명 또는 좌표"}
+        },
+        "required": ["location"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "precipitation_type": {"type": "string", "enum": ["none", "rain", "snow", "sleet"]},
+          "precipitation_mm": {"type": "number"},
+          "precipitation_prob": {"type": "number"},
+          "summary": {"type": "string"}
+        }
+      },
+      "data_source": {
+        "real": "기상청 단기예보 조회서비스",
+        "mock": "mock_data/weather.json"
+      }
+    },
+    {
+      "name": "traffic_incident_tool",
+      "mvp_priority": "P0",
+      "description": "지정 영역의 도로 돌발상황(사고, 공사, 통제, 낙하물)을 조회한다.",
+      "when_to_use": "버스가 비정상적으로 지연되고 있어 원인을 추정해야 할 때. Critic이 'missing_info: traffic_incident'를 지목했을 때.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "bbox": {"type": "string", "description": "영역명 (예: '강남구') 또는 좌표 박스"},
+          "route_id": {"type": "string", "description": "(선택) 영향 노선만 필터링"}
+        },
+        "required": ["bbox"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "incidents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type_kr": {"type": "string"},
+                "severity": {"type": "string"},
+                "estimated_clear_min": {"type": "number"},
+                "impact_on_route": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          }
+        }
+      },
+      "data_source": {
+        "real": "국토교통부 ITS 돌발상황정보",
+        "mock": "mock_data/traffic_incident.json"
+      }
+    },
+    {
+      "name": "risk_score_tool",
+      "mvp_priority": "P0",
+      "description": "현재까지 수집된 정보로 막차 실패 위험 점수와 anomaly_type을 계산한다.",
+      "when_to_use": "최소한 last_transport_time_tool 결과를 확보한 뒤 호출. live_arrival/weather/traffic_incident 결과가 있으면 자동으로 가산 반영.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "minutes_until_last": {"type": "number", "description": "막차 출발까지 남은 분"},
+          "expected_arrival_min": {"type": "number", "description": "현재 버스 도착 예정 분"},
+          "transfer_walk_min": {"type": "number", "description": "환승/하차 후 도보 시간"},
+          "delay_min": {"type": "number", "description": "현재 노선 지연(분)", "default": 0},
+          "precipitation_type": {"type": "string", "default": "none"},
+          "incident_severity": {"type": "string", "enum": ["none", "low", "moderate", "severe"], "default": "none"}
+        },
+        "required": ["minutes_until_last", "expected_arrival_min", "transfer_walk_min"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "slack_min": {"type": "number"},
+          "risk_score": {"type": "number"},
+          "anomaly_type": {"type": "string"},
+          "explanation": {"type": "string"}
+        }
+      },
+      "data_source": {
+        "real": "내부 계산 (ARCHITECTURE.md §4)",
+        "mock": "내부 계산"
+      }
+    },
+    {
+      "name": "alternative_route_tool",
+      "mvp_priority": "P1",
+      "description": "기존 경로 위험 시 대체 경로(타 노선, 지하철 전환, 부분 택시 등)를 추천한다.",
+      "when_to_use": "risk_score >= 60이거나 Critic이 대체 경로 정보를 요청했을 때.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "origin": {"type": "string"},
+          "destination": {"type": "string"},
+          "exclude_routes": {"type": "array", "items": {"type": "string"}, "default": []}
+        },
+        "required": ["origin", "destination"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "summary": {"type": "string"},
+                "total_min": {"type": "number"},
+                "estimated_cost_krw": {"type": "number"},
+                "risk_score": {"type": "number"}
+              }
+            }
+          }
+        }
+      },
+      "data_source": {
+        "real": "카카오/네이버 길찾기 API",
+        "mock": "mock_data/alternative_route.json"
+      }
+    },
+    {
+      "name": "route_search_tool",
+      "mvp_priority": "P2",
+      "description": "출발지/목적지 기반 가능한 경로 후보 일반 검색.",
+      "when_to_use": "사용자가 막연히 '갈 수 있어?'만 묻고 특정 노선/정류장을 언급하지 않았을 때 가장 먼저 호출하여 last_transport_time_tool 호출 전 후보를 좁힌다.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "origin": {"type": "string"},
+          "destination": {"type": "string"},
+          "depart_time": {"type": "string", "format": "date-time"}
+        },
+        "required": ["origin", "destination"]
+      },
+      "output_schema": {"type": "object"},
+      "data_source": {
+        "real": "카카오/네이버 길찾기 API",
+        "mock": "(MVP에서 last_transport_time_tool로 대체)"
+      }
+    },
+    {
+      "name": "bus_location_tool",
+      "mvp_priority": "P2",
+      "description": "특정 노선 차량의 현재 위치/정체 가능성을 조회한다.",
+      "when_to_use": "live_arrival_tool로 도착 시간만 봤을 때 신뢰가 낮을 경우(지연 큼) 차량 위치를 직접 확인.",
+      "input_schema": {
+        "type": "object",
+        "properties": {"route_id": {"type": "string"}},
+        "required": ["route_id"]
+      },
+      "output_schema": {"type": "object"},
+      "data_source": {
+        "real": "서울 열린데이터광장 - 버스위치정보 조회 서비스",
+        "mock": "(MVP에서 미구현)"
+      }
+    },
+    {
+      "name": "explanation_tool",
+      "mvp_priority": "P1",
+      "description": "수집된 모든 Observation을 자연어로 정리해 사용자에게 보여줄 최종 설명을 생성한다.",
+      "when_to_use": "Critic이 enough_to_answer=true를 반환한 직후, Final Answer 생성 직전.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "observations": {"type": "array"},
+          "risk": {"type": "object"}
+        },
+        "required": ["observations", "risk"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "user_message": {"type": "string"},
+          "recommended_actions": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "data_source": {
+        "real": "LLM (Claude) 호출",
+        "mock": "(MVP에서 단순 템플릿)"
+      }
+    }
+  ]
+}

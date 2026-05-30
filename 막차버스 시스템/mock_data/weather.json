@@ -1,0 +1,35 @@
+{
+  "_comment": "기상청 단기예보 (강수확률/강수량/적설) 응답을 간소화한 형태.",
+  "scenarios": {
+    "normal": {
+      "queried_at": "2026-05-25T23:42:00+09:00",
+      "location": "서울특별시 강남구",
+      "temperature_c": 18.4,
+      "precipitation_mm": 0.0,
+      "precipitation_type": "none",
+      "precipitation_prob": 10,
+      "wind_ms": 1.2,
+      "summary": "맑음, 강수 없음"
+    },
+    "delay": {
+      "queried_at": "2026-05-25T23:58:00+09:00",
+      "location": "서울특별시 강남구",
+      "temperature_c": 14.1,
+      "precipitation_mm": 1.5,
+      "precipitation_type": "rain",
+      "precipitation_prob": 80,
+      "wind_ms": 3.4,
+      "summary": "약한 비, 노면 미끄러움"
+    },
+    "rain": {
+      "queried_at": "2026-05-25T23:30:00+09:00",
+      "location": "서울특별시 강남구",
+      "temperature_c": 13.7,
+      "precipitation_mm": 5.2,
+      "precipitation_type": "rain",
+      "precipitation_prob": 95,
+      "wind_ms": 4.8,
+      "summary": "비, 시간당 5mm 내외"
+    }
+  }
+}

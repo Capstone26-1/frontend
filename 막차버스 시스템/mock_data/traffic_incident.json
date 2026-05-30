@@ -1,0 +1,44 @@
+{
+  "_comment": "국토교통부 ITS 돌발상황 API 모방. 사고/공사/통제 등.",
+  "scenarios": {
+    "normal": {
+      "queried_at": "2026-05-25T23:42:00+09:00",
+      "bbox": "서울 강남구 일대",
+      "incidents": []
+    },
+    "delay": {
+      "queried_at": "2026-05-25T23:58:00+09:00",
+      "bbox": "서울 강남구 일대",
+      "incidents": [
+        {
+          "id": "INC-2026-0525-1132",
+          "type": "accident",
+          "type_kr": "교통사고",
+          "severity": "moderate",
+          "location": "강남대로 신논현역 인근 (북→남)",
+          "started_at": "2026-05-25T23:32:00+09:00",
+          "estimated_clear_min": 25,
+          "lanes_blocked": 1,
+          "impact_on_route": ["143"]
+        }
+      ]
+    },
+    "rain": {
+      "queried_at": "2026-05-25T23:30:00+09:00",
+      "bbox": "서울 강남구 일대",
+      "incidents": [
+        {
+          "id": "INC-2026-0525-1101",
+          "type": "weather_caution",
+          "type_kr": "기상주의",
+          "severity": "low",
+          "location": "강남대로 전 구간",
+          "started_at": "2026-05-25T22:50:00+09:00",
+          "estimated_clear_min": 120,
+          "lanes_blocked": 0,
+          "impact_on_route": []
+        }
+      ]
+    }
+  }
+}

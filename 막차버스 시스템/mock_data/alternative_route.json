@@ -1,0 +1,55 @@
+{
+  "_comment": "기존 경로 위험 시 추천하는 대체 경로. 실제 환경에서는 카카오/네이버 길찾기 API로 대체.",
+  "scenarios": {
+    "normal": {
+      "queried_at": "2026-05-25T23:42:00+09:00",
+      "origin": "강남역",
+      "destination": "사당역",
+      "alternatives": []
+    },
+    "delay": {
+      "queried_at": "2026-05-25T23:58:00+09:00",
+      "origin": "강남역",
+      "destination": "사당역",
+      "alternatives": [
+        {
+          "rank": 1,
+          "mode_sequence": ["subway"],
+          "summary": "2호선 강남 → 사당 직통",
+          "total_min": 18,
+          "last_departure_time": "2026-05-26T00:25:00+09:00",
+          "minutes_until_last": 27,
+          "estimated_cost_krw": 1550,
+          "risk_score": 15
+        },
+        {
+          "rank": 2,
+          "mode_sequence": ["bus", "taxi"],
+          "summary": "강남역 → 서초역까지 버스, 이후 택시",
+          "total_min": 22,
+          "last_departure_time": "—",
+          "minutes_until_last": null,
+          "estimated_cost_krw": 9800,
+          "risk_score": 25
+        }
+      ]
+    },
+    "rain": {
+      "queried_at": "2026-05-25T23:30:00+09:00",
+      "origin": "강남역",
+      "destination": "사당역",
+      "alternatives": [
+        {
+          "rank": 1,
+          "mode_sequence": ["subway"],
+          "summary": "2호선 강남 → 사당 (실내 환승, 비 영향 없음)",
+          "total_min": 17,
+          "last_departure_time": "2026-05-26T00:25:00+09:00",
+          "minutes_until_last": 55,
+          "estimated_cost_krw": 1550,
+          "risk_score": 10
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "_comment": "노선별 막차 시간 (버스 + 지하철). 실제 데이터는 서울 TOPIS / 지하철 운영기관에서 별도 조회 필요.",
+  "scenarios": {
+    "normal": {
+      "queried_at": "2026-05-25T23:42:00+09:00",
+      "origin_stop": "강남역.강남역사거리",
+      "destination": "사당역",
+      "options": [
+        {
+          "mode": "bus",
+          "route_id": "143",
+          "route_name": "143",
+          "last_departure_time": "2026-05-26T00:10:00+09:00",
+          "minutes_until_last": 28,
+          "transfer_walk_min": 0
+        },
+        {
+          "mode": "subway",
+          "route_id": "line2",
+          "route_name": "2호선",
+          "last_departure_time": "2026-05-26T00:25:00+09:00",
+          "minutes_until_last": 43,
+          "transfer_walk_min": 3
+        }
+      ]
+    },
+    "delay": {
+      "queried_at": "2026-05-25T23:58:00+09:00",
+      "origin_stop": "강남역.강남역사거리",
+      "destination": "사당역",
+      "options": [
+        {
+          "mode": "bus",
+          "route_id": "143",
+          "route_name": "143",
+          "last_departure_time": "2026-05-26T00:10:00+09:00",
+          "minutes_until_last": 12,
+          "transfer_walk_min": 4
+        }
+      ]
+    },
+    "rain": {
+      "queried_at": "2026-05-25T23:30:00+09:00",
+      "origin_stop": "강남역.강남역사거리",
+      "destination": "사당역",
+      "options": [
+        {
+          "mode": "bus",
+          "route_id": "143",
+          "route_name": "143",
+          "last_departure_time": "2026-05-26T00:10:00+09:00",
+          "minutes_until_last": 40,
+          "transfer_walk_min": 3
+        }
+      ]
+    }
+  }
+}

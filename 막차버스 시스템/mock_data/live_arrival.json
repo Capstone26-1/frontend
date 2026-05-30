@@ -1,0 +1,70 @@
+{
+  "_comment": "서울 열린데이터광장 - 버스도착정보 모방. MOCK_SCENARIO 환경변수로 시나리오 전환. (normal | delay | rain)",
+  "scenarios": {
+    "normal": {
+      "stop_id": "23001",
+      "stop_name": "강남역.강남역사거리",
+      "queried_at": "2026-05-25T23:42:00+09:00",
+      "buses": [
+        {
+          "route_id": "143",
+          "route_name": "143",
+          "vehicle_id": "서울75사1234",
+          "expected_arrival_min": 7,
+          "expected_arrival_sec": 420,
+          "delay_min": 0,
+          "headway_avg_min": 12,
+          "remaining_stops": 3,
+          "is_last_bus": false
+        },
+        {
+          "route_id": "401",
+          "route_name": "401",
+          "vehicle_id": "서울75사5678",
+          "expected_arrival_min": 4,
+          "expected_arrival_sec": 240,
+          "delay_min": 1,
+          "headway_avg_min": 10,
+          "remaining_stops": 2,
+          "is_last_bus": false
+        }
+      ]
+    },
+    "delay": {
+      "stop_id": "23001",
+      "stop_name": "강남역.강남역사거리",
+      "queried_at": "2026-05-25T23:58:00+09:00",
+      "buses": [
+        {
+          "route_id": "143",
+          "route_name": "143",
+          "vehicle_id": "서울75사1234",
+          "expected_arrival_min": 18,
+          "expected_arrival_sec": 1080,
+          "delay_min": 12,
+          "headway_avg_min": 12,
+          "remaining_stops": 6,
+          "is_last_bus": true
+        }
+      ]
+    },
+    "rain": {
+      "stop_id": "23001",
+      "stop_name": "강남역.강남역사거리",
+      "queried_at": "2026-05-25T23:30:00+09:00",
+      "buses": [
+        {
+          "route_id": "143",
+          "route_name": "143",
+          "vehicle_id": "서울75사1234",
+          "expected_arrival_min": 9,
+          "expected_arrival_sec": 540,
+          "delay_min": 3,
+          "headway_avg_min": 12,
+          "remaining_stops": 4,
+          "is_last_bus": false
+        }
+      ]
+    }
+  }
+}
