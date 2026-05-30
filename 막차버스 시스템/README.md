@@ -1,8 +1,8 @@
-# 막차버스 시스템 — MCP 기반 Level 3 Dynamic Workflow Agent
+# 막차버스 시스템 — MCP 기반 Dynamic Workflow Agent
 
 > **이 프로젝트는 "막차 앱"이 아닙니다.**
 > MCP Tool들을 골라 쓰면서 스스로 계획·실행·검증·재계획을 반복하는
-> **Level 3 Dynamic Workflow Agent Framework**를 만들고,
+> ** Dynamic Workflow Agent Framework**를 만들고,
 > 그 위에 "막차 실패 위험 이상탐지"라는 시연용 사용 사례를 얹습니다.
 
 ---
